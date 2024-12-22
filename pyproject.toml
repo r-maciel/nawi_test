@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "nawi-test"
+version = "0.1.0"
+description = ""
+authors = ["Luis Maciel <lmaciel.amador@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
