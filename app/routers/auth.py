@@ -44,3 +44,23 @@ def verify_access_token(access_token: str):
         )
 
     return {"message": "Token is valid", "username": decoded_token["sub"]}
+
+
+@router.post("/refresh")
+def refresh_token(refresh_token: str):
+    decoded_token = decode_access_token(
+        refresh_token, settings.jwt_refresh_secret_key
+    )
+    if not decoded_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token"
+        )
+
+    username = decoded_token.get("sub")
+    new_access_token = get_access_token(data={"sub": username})
+
+    return {
+        "access_token": new_access_token,
+        "token_type": "bearer"
+    }
