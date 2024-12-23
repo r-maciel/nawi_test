@@ -11,6 +11,7 @@ fastapi = {extras = ["standard"], version = "^0.115.6"}
 sqlmodel = "^0.0.22"
 pydantic-settings = "^2.7.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pyjwt = "^2.10.1"
 
 
 [build-system]

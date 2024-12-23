@@ -15,6 +15,8 @@ def _get_dotenv_filepath() -> str:
 
 class Settings(BaseSettings):
     db_url: str
+    jwt_secret_key: str
+    jwt_refresh_secret_key: str
 
     model_config = SettingsConfigDict(env_file=_get_dotenv_filepath())
 
