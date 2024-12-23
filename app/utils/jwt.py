@@ -34,10 +34,10 @@ def create_access_token(
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> str | None:
+def decode_access_token(token: str, secret_key: str) -> str | None:
     try:
         decoded_token = jwt.decode(
-            token, settings.jwt_secret_key, algorithms=[ALGORITHM]
+            token, secret_key, algorithms=[ALGORITHM]
         )
         return decoded_token
     except jwt.ExpiredSignatureError:

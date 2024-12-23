@@ -8,6 +8,7 @@ from app.utils.auth import verify_password
 from app.utils.jwt import (
     get_access_token, get_refresh_token, decode_access_token
 )
+from app.settings import settings
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -33,9 +34,9 @@ def login_user(
     }
 
 
-@router.get("/verify")
-def verify_access_token(token: Annotated[str, Depends(oauth2_scheme)]):
-    decoded_token = decode_access_token(token)
+@router.post("/verify")
+def verify_access_token(access_token: str):
+    decoded_token = decode_access_token(access_token, settings.jwt_secret_key)
     if not decoded_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
