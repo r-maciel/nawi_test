@@ -19,7 +19,7 @@ def login_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep
 ):
-    statement = select(User).where(User.email == form_data.username)
+    statement = select(User).where(User.username == form_data.username)
     user = session.exec(statement).first()
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
@@ -28,8 +28,8 @@ def login_user(
         )
 
     return {
-        "access_token": get_access_token({"sub": user.email}),
-        "refresh_token": get_refresh_token({"sub": user.email}),
+        "access_token": get_access_token({"sub": user.username}),
+        "refresh_token": get_refresh_token({"sub": user.username}),
         "token_type": "bearer"
     }
 
