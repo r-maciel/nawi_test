@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter
 from sqlalchemy.exc import IntegrityError
 from app.db import SessionDep
 from app.models.user import User
