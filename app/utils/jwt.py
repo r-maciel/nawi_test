@@ -1,7 +1,12 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
+from fastapi import HTTPException, status
+from sqlmodel import select
+
 from app.settings import settings
+from app.db import SessionDep
+from app.models import RevokedToken
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 1  # 2 minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = 3  # 5 days
@@ -44,3 +49,22 @@ def decode_access_token(token: str, secret_key: str) -> str | None:
         return None
     except jwt.InvalidTokenError:
         return None
+
+
+def validate_token(token: str, secret_key: str, session: SessionDep) -> dict:
+    decoded_token = decode_access_token(token, secret_key)
+    if not decoded_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+
+    statement = select(RevokedToken).where(RevokedToken.token == token)
+    revoked = session.exec(statement).first()
+    if revoked:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked"
+        )
+
+    return decoded_token

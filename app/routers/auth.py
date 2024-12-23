@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import select
 from app.db import SessionDep
-from app.models.user import User
+from app.models import User, RevokedToken
 from app.utils.auth import verify_password
 from app.utils.jwt import (
-    get_access_token, get_refresh_token, decode_access_token
+    get_access_token, get_refresh_token, validate_token
 )
 from app.settings import settings
 
@@ -35,27 +35,19 @@ def login_user(
 
 
 @router.post("/verify")
-def verify_access_token(access_token: str):
-    decoded_token = decode_access_token(access_token, settings.jwt_secret_key)
-    if not decoded_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
-        )
+def verify_access_token(access_token: str, session: SessionDep):
+    decoded_token = validate_token(
+        access_token, settings.jwt_secret_key, session
+    )
 
     return {"message": "Token is valid", "username": decoded_token["sub"]}
 
 
 @router.post("/refresh")
-def refresh_token(refresh_token: str):
-    decoded_token = decode_access_token(
-        refresh_token, settings.jwt_refresh_secret_key
+def refresh_token(refresh_token: str, session: SessionDep):
+    decoded_token = validate_token(
+        refresh_token, settings.jwt_refresh_secret_key, session
     )
-    if not decoded_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired refresh token"
-        )
 
     username = decoded_token.get("sub")
     new_access_token = get_access_token(data={"sub": username})
@@ -64,3 +56,16 @@ def refresh_token(refresh_token: str):
         "access_token": new_access_token,
         "token_type": "bearer"
     }
+
+
+@router.post("/logout", description="Log Out revoking access token")
+def logout(access_token: str, session: SessionDep):
+    validate_token(
+        access_token, settings.jwt_secret_key, session
+    )
+
+    revoked_token = RevokedToken(token=access_token)
+    session.add(revoked_token)
+    session.commit()
+
+    return {"message": "Successfully logged out"}
