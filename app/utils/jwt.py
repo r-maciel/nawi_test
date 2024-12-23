@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from app.settings import settings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
-REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 1  # 2 minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = 3  # 5 days
 ALGORITHM = "HS256"
 
 
@@ -24,9 +24,23 @@ def get_refresh_token(data: dict) -> str:
     )
 
 
-def create_access_token(data: dict, expires_delta: timedelta, secret_key: str):
+def create_access_token(
+    data: dict, expires_delta: timedelta, secret_key: str
+) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_access_token(token: str) -> str | None:
+    try:
+        decoded_token = jwt.decode(
+            token, settings.jwt_secret_key, algorithms=[ALGORITHM]
+        )
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None

@@ -5,7 +5,9 @@ from sqlmodel import select
 from app.db import SessionDep
 from app.models.user import User
 from app.utils.auth import verify_password
-from app.utils.jwt import get_access_token, get_refresh_token
+from app.utils.jwt import (
+    get_access_token, get_refresh_token, decode_access_token
+)
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -29,3 +31,15 @@ def login_user(
         "refresh_token": get_refresh_token({"sub": user.email}),
         "token_type": "bearer"
     }
+
+
+@router.get("/verify")
+def verify_access_token(token: Annotated[str, Depends(oauth2_scheme)]):
+    decoded_token = decode_access_token(token)
+    if not decoded_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+
+    return {"message": "Token is valid", "username": decoded_token["sub"]}
