@@ -1,0 +1,4 @@
+**/__pycache__/
+sqlite.db
+# For practical usage, we're not ignoring .env file, this SHOUDN'T be done in production apps
+# .env

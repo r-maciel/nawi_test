@@ -3,6 +3,8 @@ from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 from app.settings import settings
 
+from app.models.user import User
+
 connect_args = {"check_same_thread": False}
 engine = create_engine(settings.db_url, connect_args=connect_args, echo=True)
 
