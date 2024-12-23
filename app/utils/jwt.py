@@ -8,8 +8,8 @@ from app.settings import settings
 from app.db import SessionDep
 from app.models import RevokedToken
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 1  # 2 minutes
-REFRESH_TOKEN_EXPIRE_MINUTES = 3  # 5 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
+REFRESH_TOKEN_EXPIRE_MINUTES = 3
 ALGORITHM = "HS256"
 
 
